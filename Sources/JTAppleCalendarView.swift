@@ -180,7 +180,9 @@ public class JTAppleCalendarView: UIView {
     public var selectedDates: [NSDate] {
         get {
             // Array may contain duplicate dates in case where out-dates are selected. So clean it up here
-            return Array(Set(theSelectedDates)).sort()
+            return Array(Set(theSelectedDates)).sort() {first, second in
+                return lessThan(first, second: second)
+            }
         }
     }
     
@@ -539,12 +541,12 @@ public class JTAppleCalendarView: UIView {
                 retval = counterPathIndex[0]
             }
         } else { // If the date does belong to this month, then lets find out if it has a counterpart date
-            if date >= startOfMonthCache && date <= endOfMonthCache {
+            if greaterThanOrEqual(date, second: startOfMonthCache) && lessThanOrEqual(date, second: endOfMonthCache) {
                 let dayIndex = calendar.components(.Day, fromDate: date).day
                 if case 1...13 = dayIndex  { // then check the previous month
                     // get the index path of the last day of the previous month
                     
-                    guard let prevMonth = calendar.dateByAddingUnit(.Month, value: -1, toDate: date, options: []) where prevMonth >= startOfMonthCache && prevMonth <= endOfMonthCache else {
+                    guard let prevMonth = calendar.dateByAddingUnit(.Month, value: -1, toDate: date, options: []) where greaterThanOrEqual(prevMonth, second: startOfMonthCache) && lessThanOrEqual(prevMonth, second:endOfMonthCache) else {
                         return retval
                     }
                     
@@ -580,7 +582,7 @@ public class JTAppleCalendarView: UIView {
                         print("out of range error in indexPathOfdateCellCounterPart() upper. This should not happen. Contact developer on github")
                     }
                 } else if case 26...31 = dayIndex  { // check the following month
-                    guard let followingMonth = calendar.dateByAddingUnit(.Month, value: 1, toDate: date, options: []) where followingMonth >= startOfMonthCache && followingMonth <= endOfMonthCache else {
+                    guard let followingMonth = calendar.dateByAddingUnit(.Month, value: 1, toDate: date, options: []) where greaterThanOrEqual(followingMonth, second: startOfMonthCache) && lessThanOrEqual(followingMonth, second: endOfMonthCache) else {
                         return retval
                     }
                     
@@ -731,7 +733,7 @@ public class JTAppleCalendarView: UIView {
     func pathsFromDates(dates:[NSDate])-> [NSIndexPath] {
         var returnPaths: [NSIndexPath] = []
         for date in dates {
-            if  calendar.startOfDayForDate(date) >= startOfMonthCache && calendar.startOfDayForDate(date) <= endOfMonthCache {
+            if  greaterThanOrEqual(calendar.startOfDayForDate(date), second: startOfMonthCache) && lessThanOrEqual(calendar.startOfDayForDate(date), second: endOfMonthCache) {
                 let periodApart = calendar.components(.Month, fromDate: startOfMonthCache, toDate: date, options: [])
                 let monthSectionIndex = periodApart.month
                 let startSectionIndex = monthSectionIndex * numberOfSectionsPerMonth

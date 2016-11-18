@@ -7,7 +7,7 @@
 //
 
 enum JTAppleCalendarViewSource {
-    case fromXib(String)
+    case fromXib(String, NSBundle?)
     case fromType(AnyClass)
     case fromClassName(String)
 }
@@ -164,8 +164,9 @@ extension JTAppleReusableViewProtocolTrait {
     func setupView(cellSource: JTAppleCalendarViewSource) {
         if view != nil { return}
         switch cellSource {
-        case let .fromXib(xibName):
-            let viewObject = NSBundle.mainBundle().loadNibNamed(xibName, owner: self, options: [:])
+        case let .fromXib(xibName, bundle):
+            let bundleToUse = bundle ?? NSBundle.mainBundle()
+            let viewObject = bundleToUse.loadNibNamed(xibName, owner: self, options: [:])
             
             #if swift(>=2.3)
                 guard let view = viewObject?[0] as? ViewType else {

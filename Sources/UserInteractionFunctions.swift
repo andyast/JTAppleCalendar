@@ -49,7 +49,11 @@ extension JTAppleCalendarView {
     
     /// Let's the calendar know which cell xib to use for the displaying of it's date-cells.
     /// - Parameter name: The name of the xib of your cell design
-    public func registerCellViewXib(fileName name: String) { cellViewSource = JTAppleCalendarViewSource.fromXib(name) }
+    public func registerCellViewXib(fileName name: String) { cellViewSource = JTAppleCalendarViewSource.fromXib(name, nil) }
+    
+    /// Let's the calendar know which cell xib to use for the displaying of it's date-cells.
+    /// - Parameter name: The name of the xib of your cell design
+    public func registerCellViewXib(fileName name: String, bundle: NSBundle?) { cellViewSource = JTAppleCalendarViewSource.fromXib(name, bundle) }
     
     /// Let's the calendar know which cell class to use for the displaying of it's date-cells.
     /// - Parameter name: The class name of your cell design
@@ -64,7 +68,7 @@ extension JTAppleCalendarView {
     public func registerHeaderViewXibs(fileNames headerViewXibNames: [String]) {
         registeredHeaderViews.removeAll() // remove the already registered xib files if the user re-registers again.
         for headerViewXibName in headerViewXibNames {
-            registeredHeaderViews.append(JTAppleCalendarViewSource.fromXib(headerViewXibName))
+            registeredHeaderViews.append(JTAppleCalendarViewSource.fromXib(headerViewXibName, nil))
             self.calendarView.registerClass(JTAppleCollectionReusableView.self,
                                             forSupplementaryViewOfKind: UICollectionElementKindSectionHeader,
                                             withReuseIdentifier: headerViewXibName)
@@ -182,7 +186,7 @@ extension JTAppleCalendarView {
             let firstDayOfDate = self.calendar.dateFromComponents(components)!
             
             // If the date is not within valid boundaries, then exit
-            if !(firstDayOfDate >= self.startOfMonthCache && firstDayOfDate <= self.endOfMonthCache) { continue }
+            if !(greaterThanOrEqual(firstDayOfDate, second: self.startOfMonthCache) && lessThanOrEqual(firstDayOfDate, second: self.endOfMonthCache)) { continue }
             let pathFromDates = self.pathsFromDates([date])
             
             // If the date path youre searching for, doesnt exist, then return
@@ -262,7 +266,7 @@ extension JTAppleCalendarView {
         scrollInProgress = true
         delayRunOnMainThread(0.0, closure: {
             // This part should be inside the mainRunLoop
-            if !(firstDayOfDate >= self.startOfMonthCache && firstDayOfDate <= self.endOfMonthCache) {
+            if !(greaterThanOrEqual(firstDayOfDate, second: self.startOfMonthCache) && lessThanOrEqual(firstDayOfDate, second: self.endOfMonthCache)) {
                 self.scrollInProgress = false
                 return
             }
@@ -351,13 +355,13 @@ extension JTAppleCalendarView {
     /// returns:
     ///     - An array of the successfully generated dates
     public func generateDateRange(from startDate: NSDate, to endDate:NSDate)-> [NSDate] {
-        if startDate > endDate { return [] }
+        if greaterThan(startDate, second: endDate) { return [] }
         var returnDates: [NSDate] = []
         var currentDate = startDate
         repeat {
             returnDates.append(currentDate)
             currentDate = calendar.startOfDayForDate(calendar.dateByAddingUnit(.Day, value: 1, toDate: currentDate, options: [])!)
-        } while currentDate <= endDate
+        } while lessThanOrEqual(currentDate, second: endDate)
         return returnDates
     }
 

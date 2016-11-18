@@ -24,15 +24,27 @@ func delayRunOnGlobalThread(delay:Double, qos: qos_class_t,closure:()->()) {
 }
 
 /// NSDates can be compared with the == and != operators
-public func ==(lhs: NSDate, rhs: NSDate) -> Bool {
-    return lhs === rhs || lhs.compare(rhs) == .OrderedSame
+public func areEqual(first: NSDate, second: NSDate) -> Bool {
+    return first === second || first.compare(second) == .OrderedSame
 }
 /// NSDates can be compared with the > and < operators
-public func <(lhs: NSDate, rhs: NSDate) -> Bool {
-    return lhs.compare(rhs) == .OrderedAscending
+public func lessThan(first: NSDate, second: NSDate) -> Bool {
+    return first.compare(second) == .OrderedAscending
 }
 
-extension NSDate: Comparable { }
+public func greaterThan(first: NSDate, second: NSDate) -> Bool {
+    return lessThan(second, second: first)
+}
+
+public func lessThanOrEqual(first: NSDate, second: NSDate) -> Bool {
+    return lessThan(first, second: second) || areEqual(first, second: second)
+}
+
+public func greaterThanOrEqual(first: NSDate, second: NSDate) -> Bool {
+    return lessThan(second, second: first) || areEqual(first, second: second)
+}
+
+extension NSDate { }
 extension NSDate {
     class func startOfMonthForDate(date: NSDate, usingCalendar calendar:NSCalendar) -> NSDate? {
         let dayOneComponents = calendar.components([.Era, .Year, .Month], fromDate: date)
